@@ -333,9 +333,20 @@ static public class NGUITools
 
 			if (w != null)
 			{
-				Vector3[] corners = w.localCorners;
-				box.center = Vector3.Lerp(corners[0], corners[2], 0.5f);
-				box.size = corners[2] - corners[0];
+				Vector4 dr = w.drawRegion;
+
+				if (dr.x != 0f || dr.y != 0f || dr.z != 1f || dr.w != 1f)
+				{
+					Vector4 region = w.drawingDimensions;
+					box.center = new Vector3((region.x + region.z) * 0.5f, (region.y + region.w) * 0.5f);
+					box.size = new Vector3(region.z - region.x, region.w - region.y);
+				}
+				else
+				{
+					Vector3[] corners = w.localCorners;
+					box.center = Vector3.Lerp(corners[0], corners[2], 0.5f);
+					box.size = corners[2] - corners[0];
+				}
 			}
 			else
 			{
@@ -700,8 +711,19 @@ static public class NGUITools
 	{
 		// Find the existing UI Root
 		UIRoot root = (trans != null) ? NGUITools.FindInParents<UIRoot>(trans.gameObject) : null;
-		if (root == null && UIRoot.list.Count > 0)
-			root = UIRoot.list[0];
+		if (root == null && UIRoot.list.Count > 0) root = UIRoot.list[0];
+
+		// If we are working with a different UI type, we need to treat it as a brand-new one instead
+		if (root != null)
+		{
+			UICamera cam = root.GetComponentInChildren<UICamera>();
+
+			if (cam != null && cam.camera.isOrthoGraphic == advanced3D)
+			{
+				trans = null;
+				root = null;
+			}
+		}
 
 		// If no root found, create one
 		if (root == null)
@@ -1346,7 +1368,11 @@ static public class NGUITools
 
 	static public T AddMissingComponent<T> (this GameObject go) where T : Component
 	{
+#if UNITY_FLASH
+		object comp = go.GetComponent<T>();
+#else
 		T comp = go.GetComponent<T>();
+#endif
 		if (comp == null)
 		{
 #if UNITY_EDITOR
@@ -1355,7 +1381,11 @@ static public class NGUITools
 #endif
 			comp = go.AddComponent<T>();
 		}
+#if UNITY_FLASH
+		return (T)comp;
+#else
 		return comp;
+#endif
 	}
 
 	// Temporary variable to avoid GC allocation
@@ -1466,6 +1496,7 @@ static public class NGUITools
 		return string.IsNullOrEmpty(method) ? type : type + "/" + method;
 	}
 
+#if UNITY_EDITOR || !UNITY_FLASH
 	/// <summary>
 	/// Execute the specified function on the target game object.
 	/// </summary>
@@ -1476,7 +1507,7 @@ static public class NGUITools
 
 		foreach (T comp in comps)
 		{
-#if UNITY_WEBPLAYER || UNITY_FLASH || UNITY_METRO || UNITY_WP8
+#if !UNITY_EDITOR && (UNITY_WEBPLAYER || UNITY_FLASH || UNITY_METRO || UNITY_WP8)
 			comp.SendMessage(funcName, SendMessageOptions.DontRequireReceiver);
 #else
 			MethodInfo method = comp.GetType().GetMethod(funcName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
@@ -1510,4 +1541,5 @@ static public class NGUITools
 		ExecuteAll<UIPanel>(root, "Update");
 		ExecuteAll<UIPanel>(root, "LateUpdate");
 	}
+#endif
 }

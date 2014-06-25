@@ -171,6 +171,12 @@ public class NGUISettings
 
 #region Convenience accessor properties
 
+	static public bool showTransformHandles
+	{
+		get { return GetBool("NGUI Transform Handles", false); }
+		set { SetBool("NGUI Transform Handles", value); }
+	}
+
 	static public bool minimalisticLook
 	{
 		get { return GetBool("NGUI Minimalistic", false); }
@@ -344,6 +350,12 @@ public class NGUISettings
 	{
 		get { return GetBool("NGUI Packing", true); }
 		set { SetBool("NGUI Packing", value); }
+	}
+
+	static public bool trueColorAtlas
+	{
+		get { return GetBool("NGUI Truecolor", true); }
+		set { SetBool("NGUI Truecolor", value); }
 	}
 
 	static public bool forceSquareAtlas

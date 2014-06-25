@@ -214,7 +214,7 @@ public class UIInput : MonoBehaviour
 	{
 		get
 		{
-			return hideInput && label != null && !label.multiLine;
+			return hideInput && label != null && !label.multiLine && inputType != InputType.Password;
 		}
 	}
 
@@ -253,7 +253,6 @@ public class UIInput : MonoBehaviour
 
 			// Validate all input
 			value = Validate(value);
-
 #if MOBILE
 			if (isSelected && mKeyboard != null && mCached != value)
 			{
@@ -537,7 +536,9 @@ public class UIInput : MonoBehaviour
 			if (mSelectMe != -1 && mSelectMe != Time.frameCount)
 			{
 				mSelectMe = -1;
-
+				mSelectionStart = 0;
+				mSelectionEnd = string.IsNullOrEmpty(mValue) ? 0 : mValue.Length;
+				mDrawStart = 0;
 				label.color = activeTextColor;
 #if MOBILE
 				if (Application.platform == RuntimePlatform.IPhonePlayer
@@ -564,17 +565,20 @@ public class UIInput : MonoBehaviour
 						TouchScreenKeyboard.hideInput = false;
 						kt = TouchScreenKeyboardType.Default;
 						val = mValue;
+						mSelectionStart = mSelectionEnd;
 					}
 					else
 					{
 						TouchScreenKeyboard.hideInput = false;
 						kt = (TouchScreenKeyboardType)((int)keyboardType);
 						val = mValue;
+						mSelectionStart = mSelectionEnd;
 					}
 
 					mKeyboard = (inputType == InputType.Password) ?
 						TouchScreenKeyboard.Open(val, kt, false, false, true) :
-						TouchScreenKeyboard.Open(val, kt, inputType == InputType.AutoCorrect, label.multiLine && !hideInput, false, false, defaultText);
+						TouchScreenKeyboard.Open(val, kt, !inputShouldBeHidden && inputType == InputType.AutoCorrect,
+							label.multiLine && !hideInput, false, false, defaultText);
 				}
 				else
 #endif
@@ -585,12 +589,10 @@ public class UIInput : MonoBehaviour
 					pos.y = Screen.height - pos.y;
 					Input.imeCompositionMode = IMECompositionMode.On;
 					Input.compositionCursorPos = pos;
-
-					mSelectionStart = 0;
-					mSelectionEnd = string.IsNullOrEmpty(mValue) ? 0 : mValue.Length;
-					mDrawStart = 0;
 				}
+
 				UpdateLabel();
+				return;
 			}
 #if MOBILE
 			if (mKeyboard != null)
