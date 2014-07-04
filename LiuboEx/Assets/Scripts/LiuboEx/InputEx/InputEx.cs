@@ -332,9 +332,6 @@ public class InputEx : MonoBehaviour
                         }
                     }
 
-                    mCurTouchLongPressTime = 0f;
-                    mTouchLongPressTesting = true;
-
                     break;
                     #endregion
                 case TouchPhase.Stationary:
@@ -352,11 +349,24 @@ public class InputEx : MonoBehaviour
                             {
                                 //Long Press
                                 mTouchCurHitListener.TouchLongPress();
+                                mCurTouchLongPressTime = 0f;
                             }
                         }
                     }
+                    else
+                    {
+                        mTouchLongPressTesting = true;
+                        mCurTouchLongPressTime = 0f;
+                    }
                     break;
                     #endregion
+
+                case TouchPhase.Moved:
+                    if (mTouchLongPressTesting)
+                    {
+                        mTouchLongPressTesting = false;
+                    }
+                    break;
                 case TouchPhase.Ended:
                     #region Ended
 

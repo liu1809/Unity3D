@@ -15,6 +15,7 @@ public class FileDialogDemo : MonoBehaviour
 	
 	void OnGUI () 
     {
+#if UNITY_STANDALONE
         if (GUILayout.Button("打开"))
         {
             Win32FileDialog.FileInfo fileInfo = Win32FileDialog.OpenFileDialog();
@@ -42,6 +43,7 @@ public class FileDialogDemo : MonoBehaviour
                 Debug.Log("没打开");
             }
         }
+#endif
 	}
 
 }

@@ -2,6 +2,12 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// 当前版本 v1.0
+/// 
+/// 更新日志: 
+/// v1.0 
+/// </summary>
 public class CameraControl : MonoBehaviour
 {
     #region Public Fields
@@ -47,6 +53,8 @@ public class CameraControl : MonoBehaviour
     public float m_Touch_PushPullSpeed_P = 1f;
 
     public float m_Touch_PushPullSpeed_O = 1f;
+
+    public float m_Touch_MoveDelayTime = 0.2f;
     #endregion
 
     #endregion
@@ -77,6 +85,9 @@ public class CameraControl : MonoBehaviour
 
     float mCurTweenRatio = 0f;
 
+    float mTouchSizeOffset = 0f;
+
+    float mTouchMoveDelayTime = 0f;
     #endregion
 
     void Start()
@@ -94,15 +105,17 @@ public class CameraControl : MonoBehaviour
 
         mMousePushPullTargetDistance = -mCamera.transform.localPosition.z;
 
-        Debug.Log(gameObject.name + " CC 初始化完成.");
+        mTouchSizeOffset = 720f / (float)Screen.height;
+
+        mTouchMoveDelayTime = m_Touch_MoveDelayTime;
+
+        //Debug.Log(gameObject.name + " CC 初始化完成.");
     }
 
     void Update()
     {
-        //mCurFrameIsHitUI = IsHitUI();
         mCurFrameIsHitUI = NguiEx.IsHitUI(m_IgnoreNgui, m_IgnoreNguiColliderList);
 
-        Debug.Log(mCurFrameIsHitUI);
         #region Mouse Control
 #if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBPLAYER
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2))
@@ -137,19 +150,27 @@ public class CameraControl : MonoBehaviour
 
         if (!mTouchBeganIsHitUI)
         {
-            if (Input.touchCount == 1)
+            if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Moved && mTouchMoveDelayTime >= m_Touch_MoveDelayTime)
             {
                 TouchRotateCamera();
             }
             else if (m_IsEnableZoom && Input.touchCount == 2)
             {
+                mTouchMoveDelayTime = 0f;
                 TouchPushPullCamera();
             }
             else if (m_IsEnableMove && Input.touchCount >= 3)
             {
+                mTouchMoveDelayTime = 0f;
                 TouchMoveCamera();
             }
         }
+
+        if(mTouchMoveDelayTime < m_Touch_MoveDelayTime)
+        {
+            mTouchMoveDelayTime += Time.deltaTime;
+        }
+
 #endif
         #endregion
     }
@@ -363,7 +384,7 @@ public class CameraControl : MonoBehaviour
 #if !UNITY_EDITOR && UNITY_ANDROID || UNITY_IPHONE
     void TouchRotateCamera()
     {
-        Vector2 touchMoveValue = Input.GetTouch(0).deltaPosition;
+        Vector2 touchMoveValue = Input.GetTouch(0).deltaPosition * mTouchSizeOffset;
 
         if (touchMoveValue != Vector2.zero)
         {
@@ -384,7 +405,7 @@ public class CameraControl : MonoBehaviour
 
             float lastTwoFingersDistance = Vector2.Distance(Input.GetTouch(0).position - Input.GetTouch(0).deltaPosition, Input.GetTouch(1).position - Input.GetTouch(1).deltaPosition);
 
-            float pushPullValue = lastTwoFingersDistance - curTwoFingersDistance;
+            float pushPullValue = (lastTwoFingersDistance - curTwoFingersDistance) * mTouchSizeOffset;
 
             if (mIsOrtho)
             {
@@ -426,11 +447,11 @@ public class CameraControl : MonoBehaviour
 
             if (mIsOrtho)
             {
-                moveVector *= mCamera.orthographicSize * -m_Touch_MoveSpeed_O * 0.002f;
+                moveVector *= mCamera.orthographicSize * -m_Touch_MoveSpeed_O * mTouchSizeOffset * 0.002f;
             }
             else
             {
-                moveVector *= mCamera.transform.localPosition.z * m_Touch_MoveSpeed_P * 0.002f;
+                moveVector *= mCamera.transform.localPosition.z * m_Touch_MoveSpeed_P * mTouchSizeOffset * 0.002f;
             }
 
             m_CameraParent.Translate(moveVector, transform);
@@ -438,32 +459,6 @@ public class CameraControl : MonoBehaviour
     }
 #endif
     #endregion
-
-    bool IsHitUI()
-    {
-        if (m_IgnoreNgui && m_IgnoreNguiColliderList.Count > 0)
-        {
-            if (UICamera.lastHit.collider)
-            {
-                if (!m_IgnoreNguiColliderList.Contains(UICamera.lastHit.collider))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                return true;
-            }
-        }
-        else
-        {
-            return false;
-        }
-    }
 
     void UpdateChildCameras(bool _isOrtho, float _orthoSize, Vector3 _localPos)
     {
@@ -519,7 +514,6 @@ public class CameraControl : MonoBehaviour
     }
 
     #endregion
-
 }
 
 #region Camera Tween Class
