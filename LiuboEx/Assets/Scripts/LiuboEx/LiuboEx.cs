@@ -107,7 +107,7 @@ public class LiuboEx
     {
         System.Collections.Generic.List<UnityEngine.Renderer> rendererList = new System.Collections.Generic.List<Renderer>();
 
-        if(_go.renderer)
+        if (_go.renderer)
         {
             rendererList.Add(_go.renderer);
         }
@@ -120,7 +120,7 @@ public class LiuboEx
         Vector3 minValue = new Vector3(Mathf.Infinity, Mathf.Infinity, Mathf.Infinity);
         Vector3 maxValue = new Vector3(-Mathf.Infinity, -Mathf.Infinity, -Mathf.Infinity);
 
-        foreach(UnityEngine.Renderer one in rendererList)
+        foreach (UnityEngine.Renderer one in rendererList)
         {
             if (minValue.x > one.bounds.min.x)
                 minValue.x = one.bounds.min.x;
@@ -138,6 +138,70 @@ public class LiuboEx
         }
 
         return Vector3.Distance(minValue, maxValue);
+    }
+
+    static public Vector3 GetGameObjectRenderCenter(GameObject _go)
+    {
+        System.Collections.Generic.List<UnityEngine.Renderer> rendererList = new System.Collections.Generic.List<Renderer>();
+
+        if (_go.renderer)
+        {
+            rendererList.Add(_go.renderer);
+        }
+        UnityEngine.Renderer[] childRenderers = _go.GetComponentsInChildren<Renderer>();
+        if (childRenderers.Length > 0)
+        {
+            rendererList.AddRange(childRenderers);
+        }
+
+        Vector3 minValue = new Vector3(Mathf.Infinity, Mathf.Infinity, Mathf.Infinity);
+        Vector3 maxValue = new Vector3(-Mathf.Infinity, -Mathf.Infinity, -Mathf.Infinity);
+
+        foreach (UnityEngine.Renderer one in rendererList)
+        {
+            if (minValue.x > one.bounds.min.x)
+                minValue.x = one.bounds.min.x;
+            if (minValue.y > one.bounds.min.y)
+                minValue.y = one.bounds.min.y;
+            if (minValue.z > one.bounds.min.z)
+                minValue.z = one.bounds.min.z;
+
+            if (maxValue.x < one.bounds.max.x)
+                maxValue.x = one.bounds.max.x;
+            if (maxValue.y < one.bounds.max.y)
+                maxValue.y = one.bounds.max.y;
+            if (maxValue.z < one.bounds.max.z)
+                maxValue.z = one.bounds.max.z;
+        }
+
+        //return Vector3.Distance(minValue, maxValue);
+
+        return (minValue + maxValue) * 0.5f;
+    }
+
+    static public Vector3 StringToVector3(string _str)
+    {
+        string[] strs = _str.Split(new char[] { 'x', 'y', 'z' });
+
+        if (strs.Length == 3)
+        {
+            float x, y, z;
+            if (float.TryParse(strs[0], out x) && float.TryParse(strs[1], out y) && float.TryParse(strs[2], out z))
+            {
+                return new Vector3(x, y, z);
+            }
+            else
+            {
+                Debug.Log("StringToVector3 出错");
+                return Vector3.zero;
+            }
+        }
+        else
+        {
+            Debug.Log("StringToVector3 出错");
+            return Vector3.zero;
+        }
+
     }
     #endregion
 }

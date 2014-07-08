@@ -1,6 +1,8 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2008
 
+Project("{EFE5FE2C-E1BA-5596-38D6-CF7F368C62A9}") = "LiuboEx", "Assembly-CSharp-firstpass.csproj", "{16BC765B-4F0A-8727-FFFD-2EB156E3A5C2}"
+EndProject
 Project("{EFE5FE2C-E1BA-5596-38D6-CF7F368C62A9}") = "LiuboEx", "Assembly-CSharp.csproj", "{3C424FE7-1296-15CA-BAB4-F19D04237152}"
 EndProject
 Project("{EFE5FE2C-E1BA-5596-38D6-CF7F368C62A9}") = "LiuboEx", "Assembly-CSharp-Editor.csproj", "{85F803DE-11E5-67DF-DD4C-7530FAAB29A5}"
@@ -11,6 +13,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{16BC765B-4F0A-8727-FFFD-2EB156E3A5C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16BC765B-4F0A-8727-FFFD-2EB156E3A5C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16BC765B-4F0A-8727-FFFD-2EB156E3A5C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16BC765B-4F0A-8727-FFFD-2EB156E3A5C2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3C424FE7-1296-15CA-BAB4-F19D04237152}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3C424FE7-1296-15CA-BAB4-F19D04237152}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C424FE7-1296-15CA-BAB4-F19D04237152}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -23,7 +29,7 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-							GlobalSection(MonoDevelopProperties) = preSolution
+														GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1
